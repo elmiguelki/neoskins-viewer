@@ -1,0 +1,12 @@
+$schema: https://api.gitbook.com/gitbook-docs.yaml
+site:
+  title: NEOSkins Viewer
+  structure:
+    - type: space
+      key: docs
+      title: Documentación
+      path: docs
+      default: true
+      content:
+        directory: ./docs
+        language: es

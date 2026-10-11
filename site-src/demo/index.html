@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>NEOSkins Viewer - demo</title>
+  <link rel="icon" type="image/png" href="../favicon.png" />
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+    body { margin: 0; background: #14141e; color: #e6e6f0; display: flex; min-height: 100vh; }
+    #stage { flex: 1; min-width: 0; height: 100vh; }
+    aside { width: 320px; padding: 20px; background: #1c1c2a; overflow-y: auto; height: 100vh; box-sizing: border-box; }
+    h1 { font-size: 1.1rem; margin: 0 0 16px; display: flex; align-items: center; gap: 10px; }
+    h1 img { width: 28px; height: 28px; border-radius: 7px; image-rendering: pixelated; }
+    h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: #9a9ab5; margin: 20px 0 8px; }
+    input[type="text"] { width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 8px; border: 1px solid #34344a; background: #14141e; color: inherit; }
+    button { padding: 7px 11px; border-radius: 8px; border: 1px solid #34344a; background: #26263a; color: inherit; cursor: pointer; }
+    button:hover { background: #32324c; }
+    .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    label { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 0.9rem; }
+    #capes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    #capes button { text-align: left; font-size: 0.8rem; }
+    #capes button[disabled] { opacity: 0.45; cursor: not-allowed; }
+    #status { margin-top: 12px; font-size: 0.8rem; color: #9a9ab5; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+  <div id="stage"></div>
+  <aside>
+    <h1><img src="../icon.png" alt="" />NEOSkins Viewer</h1>
+
+    <h2>Servidor</h2>
+    <input id="server" type="text" value="https://neobeta.miguelki.ovh" />
+
+    <h2>Jugador</h2>
+    <input id="username" type="text" value="Notch" />
+    <div class="row"><button id="load">Cargar</button></div>
+
+    <h2>Skin desde archivo</h2>
+    <input id="file" type="file" accept="image/png,image/gif" />
+    <div class="row">
+      <button data-model="classic">Classic</button>
+      <button data-model="slim">Slim</button>
+    </div>
+
+    <h2>Animaciones</h2>
+    <div class="row" id="anims"></div>
+
+    <h2>Render</h2>
+    <label><input id="outline" type="checkbox" checked /> Contorno</label>
+    <label><input id="aa" type="checkbox" checked /> Antialiasing (FXAA)</label>
+
+    <h2>NEOCapes</h2>
+    <div class="row"><button id="nocape">Sin capa</button></div>
+    <div id="capes" class="row"></div>
+
+    <div id="status"></div>
+  </aside>
+
+  <script src="../downloads/neoskins-viewer.standalone.js"></script>
+  <script>
+    const { NeoSkinViewer, NeoSkinsClient } = NeoSkins;
+    const $ = (id) => document.getElementById(id);
+    const status = (text) => { $("status").textContent = text; };
+
+    const viewer = new NeoSkinViewer("#stage", {
+      zoom: true,
+      onCapeLoadingChange: (loading) => status(loading ? "Cargando capa animada..." : ""),
+    });
+    window.viewer = viewer;
+
+    for (const name of ["hi", "salute", "look", "scratch", "fall", "show_cape"]) {
+      const b = document.createElement("button");
+      b.textContent = name;
+      b.onclick = () => viewer.play(name);
+      $("anims").appendChild(b);
+    }
+
+    $("outline").onchange = (e) => viewer.setOutline(e.target.checked);
+    $("aa").onchange = (e) => viewer.setAntialias(e.target.checked);
+    $("nocape").onclick = () => viewer.setCape(null);
+    document.querySelectorAll("[data-model]").forEach((b) => {
+      b.onclick = () => viewer.setModel(b.dataset.model);
+    });
+
+    $("file").onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => viewer.setSkin(reader.result).catch((err) => status(err.message));
+      reader.readAsDataURL(file);
+    };
+
+    async function load() {
+      const username = $("username").value.trim();
+      if (!username) return;
+      const client = new NeoSkinsClient({ baseUrl: $("server").value });
+      status("Cargando...");
+      try {
+        await viewer.loadPlayer(client, username);
+        const capes = await client.listCapes(username);
+        $("capes").replaceChildren(...capes.map((cape) => {
+          const b = document.createElement("button");
+          b.textContent = cape.name;
+          b.title = cape.description || cape.name;
+          b.disabled = !cape.can_equip;
+          b.onclick = () => viewer.setCape(cape.file_url);
+          return b;
+        }));
+        status(`${capes.length} capas visibles para ${username}`);
+      } catch (err) {
+        status(`Error: ${err.message}`);
+      }
+    }
+
+    $("load").onclick = load;
+    load();
+  </script>
+</body>
+</html>

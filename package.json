@@ -1,0 +1,45 @@
+{
+  "name": "neoskins-viewer",
+  "version": "0.1.0",
+  "description": "Visor 3D de skins y capas de NEOSkins (contorno, antialiasing, capas animadas, animaciones) y cliente de la API de skins.",
+  "type": "module",
+  "main": "./dist/neoskins-viewer.js",
+  "module": "./dist/neoskins-viewer.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/neoskins-viewer.js"
+    },
+    "./client": {
+      "types": "./dist/types/client.d.ts",
+      "import": "./dist/neoskins-client.js"
+    },
+    "./standalone": "./dist/neoskins-viewer.standalone.js"
+  },
+  "files": [
+    "dist",
+    "!dist/*.tgz",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "vite build && vite build --mode standalone && tsc -p tsconfig.json",
+    "site": "npm run build && node scripts/build-site.mjs",
+    "site:preview": "npm run site && vite preview --outDir site --port 5199"
+  },
+  "dependencies": {
+    "gifuct-js": "^2.1.2",
+    "skinview3d": "^3.4.1",
+    "skinview3d-blockbench": "^1.0.19",
+    "three": "^0.156.1"
+  },
+  "devDependencies": {
+    "@types/three": "^0.156.0",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21"
+  },
+  "license": "MIT",
+  "author": "Miguelki"
+}
