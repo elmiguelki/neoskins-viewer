@@ -23,7 +23,7 @@ interface DecodedFrame {
   delay: number;
 }
 
-interface DecodedGif {
+export interface DecodedGif {
   width: number;
   height: number;
   frames: DecodedFrame[];
@@ -34,7 +34,7 @@ interface PreparedTextureFrame {
   delay: number;
 }
 
-interface PreparedTextures {
+export interface PreparedTextures {
   width: number;
   height: number;
   frames: PreparedTextureFrame[];
@@ -84,7 +84,7 @@ function cachePreparedTextures(url: string, prepared: PreparedTextures) {
  * Asynchronously decodes and composes GIF frames in non-blocking slices,
  * yielding to the browser event loop so the UI, animations, and loaders remain 100% fluid.
  */
-async function decodeAndComposeGif(
+export async function decodeAndComposeGif(
   buffer: ArrayBuffer,
   onFirstFrameReady?: (firstFrame: ImageData, width: number, height: number) => void,
   checkCancelled?: () => boolean,
@@ -188,7 +188,7 @@ function loadImage(url: string): Promise<HTMLImageElement> {
 }
 
 /** True when the buffer starts with the GIF87a / GIF89a signature. */
-function hasGifSignature(buffer: ArrayBuffer): boolean {
+export function hasGifSignature(buffer: ArrayBuffer): boolean {
   const bytes = new Uint8Array(buffer, 0, Math.min(buffer.byteLength, 4));
   return bytes.length === 4 && bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38;
 }
@@ -198,7 +198,7 @@ function hasGifSignature(buffer: ArrayBuffer): boolean {
  * playback, frames are switched instantly via WebGL texture binding pointer swap (0ms CPU / 0ms GPU upload),
  * completely eliminating frame drops, lag, and GPU pipeline stalls.
  */
-function buildTexturesFromDecoded(
+export function buildTexturesFromDecoded(
   decoded: DecodedGif,
   viewer?: SkinViewer,
   capeLayout = false,

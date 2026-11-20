@@ -2,3 +2,4 @@ node_modules/
 dist/
 site/
 *.log
+tools/cape-gif/build/

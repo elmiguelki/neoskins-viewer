@@ -27,7 +27,8 @@
   "scripts": {
     "build": "vite build && vite build --mode standalone && tsc -p tsconfig.json",
     "site": "npm run build && node scripts/build-site.mjs",
-    "site:preview": "npm run site && vite preview --outDir site --port 5199"
+    "site:preview": "npm run site && vite preview --outDir site --port 5199",
+    "tool:cape-gif": "node tools/cape-gif/build.mjs"
   },
   "dependencies": {
     "gifuct-js": "^2.1.2",
@@ -37,6 +38,7 @@
   },
   "devDependencies": {
     "@types/three": "^0.156.0",
+    "gifenc": "^1.0.3",
     "typescript": "^5.9.3",
     "vite": "^5.4.21"
   },
